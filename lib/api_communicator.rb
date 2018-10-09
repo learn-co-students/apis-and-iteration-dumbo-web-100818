@@ -11,25 +11,24 @@ def get_character_movies_from_api(character)
   response_hash = JSON.parse(response_string)
 
   # binding.pry
-films = []
-stuff = []
+  # response_hash["results"].each do |features|
+    # binding.pry
+    # if features["name"].downcase == character
+    #   features["films"]
+    films_hash = []
+    response_hash["results"].each do |query|
+      # binding.pry
+      if query["name"].downcase == character.downcase
+        films_hash = query["films"]
+      end
+    end
+    binding.pry
+    puts "hii"
+end
   # NOTE: in this demonstration we name many of the variables _hash or _array.
   # This is done for educational purposes. This is not typically done in code.
-  response_hash["results"].each do |x|
-     if x["name"]==character
-      films = x["films"]  #returning films urls
-    end
-  end
 
-  if films == []
-    puts "Character not found."
-  end
 
-    stuff = []
-     films.each do |x|
-      stuff << JSON.parse(RestClient.get(x))
-    end
-stuff
   # iterate over the response hash to find the collection of `films` for the given
   #   `character`
   # collect those film API urls, make a web request to each URL to get the info
@@ -39,14 +38,19 @@ stuff
   # this collection will be the argument given to `parse_character_movies`
   #  and that method will do some nice presentation stuff: puts out a list
   #  of movies by title. play around with puts out other info about a given film.
-end
 
-def print_movies(films_hash)
-    films_hash.each do |x|
-      puts x["title"]
-    end
-  # some iteration magic and puts out the movies in a nice list
+
+def print_movies(films_array)
+  films_array.each_with_index do |hash, index|
+
+    movie_list = RestClient.get(hash)
+    movies = JSON.parse(movie_list)  #movies is a hash
+    movies_title = movies["title"]
+    puts "#{index+1}  #{movies_title}"
+  end
 end
+  # some iteration magic and puts out the movies in a nice list
+
 
 def show_character_movies(character)
   films_array = get_character_movies_from_api(character)
