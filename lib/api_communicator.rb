@@ -34,10 +34,10 @@ end
 
 def print_movies(films_hash)
 
-  films_hash.map do |movies|
+  films_hash.each_with_index do |movies, index|
     movies_string = RestClient.get(movies)
     movies_hash = JSON.parse(movies_string)
-    puts movies_hash["title"]
+    puts "#{index+1} #{movies_hash["title"]}"
   end
 
 end
