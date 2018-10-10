@@ -6,8 +6,28 @@ def get_character_movies_from_api(character)
   #make the web request
   response_string = RestClient.get('http://www.swapi.co/api/people/')
   response_hash = JSON.parse(response_string)
-  
-  # NOTE: in this demonstration we name many of the variables _hash or _array. 
+
+  quert = true
+  while quert
+    response_hash["results"].each do |query|
+      if query["name"] == character
+        return query["films"]
+      end
+    end
+    if response_hash["next"] == nil
+      quert = false
+    else
+      response_string = RestClient.get(response_hash["next"])
+      response_hash = JSON.parse(response_string)
+    end
+  end
+end
+
+
+
+
+
+  # NOTE: in this demonstration we name many of the variables _hash or _array.
   # This is done for educational purposes. This is not typically done in code.
 
 
@@ -20,15 +40,27 @@ def get_character_movies_from_api(character)
   # this collection will be the argument given to `parse_character_movies`
   #  and that method will do some nice presentation stuff: puts out a list
   #  of movies by title. play around with puts out other info about a given film.
+
+
+def print_movies(films_array)
+  films_array.each_with_index do |link, index|
+    # binding.pry
+    access_film_link = RestClient.get(link)
+    access_film_link_hash = JSON.parse(access_film_link)
+    film_name = access_film_link_hash["title"]
+    puts "#{index+1} #{film_name}"
+  end
 end
 
-def print_movies(films_hash)
-  # some iteration magic and puts out the movies in a nice list
-end
 
 def show_character_movies(character)
+
   films_array = get_character_movies_from_api(character)
-  print_movies(films_array)
+  if !films_array
+    puts "No such character in Star Wars."
+  else
+    print_movies(films_array)
+  end
 end
 
 ## BONUS
