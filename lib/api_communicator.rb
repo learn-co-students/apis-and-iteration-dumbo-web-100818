@@ -8,28 +8,28 @@ def api_parser(url)
 end
 
 def get_character_movies_from_api(character)
-  response_hash = api_parser("http://www.swapi.co/api/people")
-  next_page_url = response_hash["next"]
+  current_page_url = "http://www.swapi.co/api/people"
+  response_hash = api_parser(current_page_url)
 
-  while next_page_url
+  while current_page_url
     response_hash["results"].each do |person|
       if person["name"].downcase == character
         return person["films"].map {|film| api_parser(film)}
       end
     end
 
-    next_page_url = response_hash["next"]
-    response_hash = api_parser(response_hash["next"]) if next_page_url
+    current_page_url = response_hash["next"]
+    response_hash = api_parser(response_hash["next"]) if current_page_url
   end
 end
 
 def print_movies(films_hash)
   films_hash.each do |movie|
     puts "---------------"
+    puts "---------------"
     puts "Title: #{movie["title"]}"
     puts "Episode: #{movie["episode_id"]}"
     puts "Opening Crawl: #{movie["opening_crawl"]}"
-    puts "---------------"
   end
 end
 
