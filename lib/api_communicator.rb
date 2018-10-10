@@ -8,52 +8,38 @@ def api_parser(url)
 end
 
 def get_character_movies_from_api(character)
-
   response_hash = api_parser("http://www.swapi.co/api/people")
-  next_page_url = true
-  all_characters = []
+  next_page_url = response_hash["next"]
+
   while next_page_url
-    all_characters << response_hash["results"]
-    next_page_url = response_hash["next"]
-    (response_hash = api_parser(response_hash["next"])) if next_page_url
-  end
-
-  # all_characters = []
-  # i = 1
-  # while i < 10
-  #   response_hash = api_parser("http://www.swapi.co/api/people/?page=#{i}")
-  #   all_characters << response_hash["results"]
-  #   i += 1
-  # end
-
-  films = []
-
-  all_characters.flatten.each do |person|
-    if person["name"].downcase == character
-      films = person["films"]
+    response_hash["results"].each do |person|
+      if person["name"].downcase == character
+        return person["films"].map {|film| api_parser(film)}
+      end
     end
-  end
 
-  films.map do |api|
-    api_parser(api)
+    next_page_url = response_hash["next"]
+    response_hash = api_parser(response_hash["next"]) if next_page_url
   end
 end
 
-p get_character_movies_from_api("luke skywalker")
-
 def print_movies(films_hash)
   films_hash.each do |movie|
-    puts ""
+    puts "---------------"
     puts "Title: #{movie["title"]}"
     puts "Episode: #{movie["episode_id"]}"
     puts "Opening Crawl: #{movie["opening_crawl"]}"
-    puts "*" * 25
+    puts "---------------"
   end
 end
 
 def show_character_movies(character)
   films_array = get_character_movies_from_api(character)
-  print_movies(films_array)
+  if films_array
+    print_movies(films_array)
+  else
+    puts "I'm sorry, the character couldn't be found!"
+  end
 end
 
 ## BONUS
