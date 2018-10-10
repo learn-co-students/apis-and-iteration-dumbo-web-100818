@@ -7,16 +7,19 @@ def get_character_movies_from_api(character)
   response_string = RestClient.get('http://www.swapi.co/api/people/')
   response_hash = JSON.parse(response_string)
 
-  search = response_hash["results"][0]
-
-  while search["name"] != character
-    response_string = RestClient.get(search["next"])
-  end
-  if search["name"] == character
-    return search["films"]
-  else
-    search["name"] != character
-    puts "No such character in Star Wars"
+  quert = true
+  while quert
+    response_hash["results"].each do |query|
+      if query["name"] == character
+        return query["films"]
+      end
+    end
+    if response_hash["next"] == nil
+      quert = false
+    else
+      response_string = RestClient.get(response_hash["next"])
+      response_hash = JSON.parse(response_string)
+    end
   end
 end
 
@@ -40,8 +43,8 @@ end
 
 
 def print_movies(films_array)
-  # binding.pry
   films_array.each_with_index do |link, index|
+    # binding.pry
     access_film_link = RestClient.get(link)
     access_film_link_hash = JSON.parse(access_film_link)
     film_name = access_film_link_hash["title"]
@@ -53,7 +56,11 @@ end
 def show_character_movies(character)
 
   films_array = get_character_movies_from_api(character)
-  print_movies(films_array)
+  if !films_array
+    puts "No such character in Star Wars."
+  else
+    print_movies(films_array)
+  end
 end
 
 ## BONUS
